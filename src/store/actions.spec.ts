@@ -5,7 +5,6 @@ import configureMockStore from 'redux-mock-store';
 import axios from 'axios';
 
 jest.mock('axios');
-jest.useFakeTimers();
 
 const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
@@ -67,8 +66,6 @@ it('should create an action to start the fetch of a random fact and another acti
         expect(store.getActions()).toEqual(expectedActions);
         done();
     });
-
-    jest.runAllTimers();
 });
 
 it('should create an action to start the fetch of a random fact and another action to mark the failure of the fetch', done => {
@@ -86,6 +83,4 @@ it('should create an action to start the fetch of a random fact and another acti
         expect(store.getActions()).toEqual(expectedActions);
         done();
     });
-
-    jest.runAllTimers();
 });

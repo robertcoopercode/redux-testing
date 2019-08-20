@@ -23,16 +23,14 @@ export function saveRandomNumberFact() {
 export function getRandomNumberFact() {
     return (dispatch: any) => {
         dispatch(getRandomNumberFactStarted());
-        setTimeout(() => {
-            return axios
-                .get(`http://numbersapi.com/random/math`)
-                .then(res => {
-                    dispatch(getRandomNumberFactSuccess(res.data));
-                })
-                .catch(e => {
-                    console.error(e.message);
-                    dispatch(getRandomNumberFactFailure('Failed to load random error'));
-                });
-        }, 2000);
+        return axios
+            .get(`http://numbersapi.com/random/math`)
+            .then(res => {
+                dispatch(getRandomNumberFactSuccess(res.data));
+            })
+            .catch(e => {
+                console.error(e.message);
+                dispatch(getRandomNumberFactFailure('Failed to load random error'));
+            });
     };
 }

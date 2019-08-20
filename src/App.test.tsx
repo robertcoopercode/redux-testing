@@ -11,30 +11,23 @@ import { aRandomNumberFacts } from './store/mocks';
 
 jest.mock('axios');
 
-const render = (initialStore = {}) => {
+const render = (ui: any, initialStore = {}, options = {}) => {
     const store = createStore(rootReducer, initialStore, applyMiddleware(thunk));
+    const Providers = ({ children }: any) => <Provider store={store}>{children}</Provider>;
 
-    return rtlRender(
-        <Provider store={store}>
-            <App />
-        </Provider>,
-    );
+    return rtlRender(ui, { wrapper: Providers, ...options });
 };
-
-jest.useFakeTimers();
 
 it('should display a random fact when clicking the generate button', async () => {
     const randomFactText = 'Random fact';
     (axios.get as jest.Mock).mockResolvedValue({ data: randomFactText });
-    const { getByText, queryByText } = render();
+    const { getByText, queryByText } = render(<App />);
 
     expect(queryByText(/Save that fact/)).not.toBeInTheDocument();
 
     fireEvent.click(getByText(/Get new fact!/));
 
     expect(queryByText(/Loading.../)).toBeInTheDocument();
-
-    jest.runAllTimers();
 
     await wait(() => {
         expect(queryByText(randomFactText)).toBeInTheDocument();
@@ -46,11 +39,10 @@ it('should replace the current random fact with a new random fact', async () => 
     const firstRandomFactText = 'First random fact';
     const secondRandomFactText = 'Second random fact';
 
-    const { getByText, queryByText } = render();
+    const { getByText, queryByText } = render(<App />);
 
     (axios.get as jest.Mock).mockResolvedValue({ data: firstRandomFactText });
     fireEvent.click(getByText(/Get new fact!/));
-    jest.runAllTimers();
 
     await wait(() => {
         expect(queryByText(firstRandomFactText)).toBeInTheDocument();
@@ -58,7 +50,6 @@ it('should replace the current random fact with a new random fact', async () => 
 
     (axios.get as jest.Mock).mockResolvedValue({ data: secondRandomFactText });
     fireEvent.click(getByText(/Get new fact!/));
-    jest.runAllTimers();
 
     await wait(() => {
         expect(queryByText(secondRandomFactText)).toBeInTheDocument();
@@ -68,7 +59,7 @@ it('should replace the current random fact with a new random fact', async () => 
 
 it('should save a random fact when clicking the save button', () => {
     const randomFactText = 'Random fact';
-    const { queryByLabelText, getByText, getByRole, queryByRole } = render({
+    const { queryByLabelText, getByText, getByRole, queryByRole } = render(<App />, {
         randomNumberFacts: aRandomNumberFacts({ currentFact: randomFactText }),
     });
 
@@ -84,7 +75,7 @@ it('should save a random fact when clicking the save button', () => {
 it('should be able to save multiple random facts', async () => {
     const firstRandomFactText = 'First random fact';
     const secondRandomFactText = 'Second random fact';
-    const { queryByLabelText, getByText, getAllByRole, queryByRole } = render({
+    const { queryByLabelText, getByText, getAllByRole, queryByRole } = render(<App />, {
         randomNumberFacts: aRandomNumberFacts({ currentFact: firstRandomFactText }),
     });
 
@@ -95,7 +86,6 @@ it('should be able to save multiple random facts', async () => {
 
     (axios.get as jest.Mock).mockResolvedValue({ data: secondRandomFactText });
     fireEvent.click(getByText(/Get new fact!/));
-    jest.runAllTimers();
 
     await wait(() => {
         expect(getByText(/Save that fact/)).toBeInTheDocument();
